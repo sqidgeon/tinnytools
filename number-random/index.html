@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>tinnytools.cc - Number Randomizer</title>
+<link rel="icon" href="/favicon.ico" type="image/x-icon">
+<style>
+body {
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    background-color: #0d1b2a;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    color: #1b263b;
+    transition: background-color 0.5s ease;
+    overflow-x: hidden;
+    position: relative;
+    padding-top: 20px;
+}
+body.dark-mode { background-color: #000000; }
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    width: 100%;
+    padding: 0 16px;
+    box-sizing: border-box;
+}
+.navbar {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 13px;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+.badge {
+    font-size: 20px;
+    font-weight: 700;
+    padding: 12px 32px;
+    border-radius: 60px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    letter-spacing: 1px;
+    transition: all 0.5s ease;
+    background-color: rgba(224,191,255,0.9);
+    color: #1b263b;
+    display: flex;
+}
+body.dark-mode .badge {
+    background-color: rgba(125,87,195,0.9);
+    color: #e2e8f0;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+}
+.badge:hover { transform: scale(1.1); }
+.container {
+    background-color: #f8f9fa;
+    border-radius: 24px;
+    padding: 32px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    width: 100%;
+    max-width: 600px;
+    text-align: center;
+    position: relative;
+    transition: background-color 0.5s ease, color 0.5s ease;
+    box-sizing: border-box;
+}
+body.dark-mode .container {
+    background-color: #1e293b;
+    color: #e2e8f0;
+}
+.theme-toggle {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: rgba(255,255,255,0.8);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.5s ease;
+    z-index: 10;
+}
+.theme-toggle:hover { transform: scale(1.15); }
+body.dark-mode .theme-toggle { background-color: rgba(30,41,59,0.8); }
+.theme-toggle .icon {
+    width: 22px;
+    height: 22px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+.moon-icon {
+    background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.24 12.24a6 6 0 0 1-8.48-8.48 1 1 0 0 0-.81-1.7A9.97 9.97 0 0 0 2 12c0 5.51 4.49 10 10 10a9.97 9.97 0 0 0 9.94-8.95 1 1 0 0 0-1.7-.81ZM12 20A8 8 0 0 1 8.71 4.7 8.02 8.02 0 0 0 19.3 15.29 8 8 0 0 1 12 20Z" fill="%23000"/></svg>');
+    display: block;
+}
+.sun-icon {
+    background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M22 11h-4.09a5.95 5.95 0 0 0-1.02-2.47l2.89-2.89c.93-.93-.48-2.35-1.41-1.41l-2.89 2.89A5.88 5.88 0 0 0 13 6.09V2c0-1.32-2-1.32-2 0v4.09c-.91.15-1.76.51-2.48 1.03L5.63 4.23c-.94-.94-2.35.48-1.41 1.41l2.89 2.89A5.95 5.95 0 0 0 6.09 11H2c-1.32 0-1.32 2 0 2h4.09c.15.91.51 1.75 1.02 2.47l-2.89 2.89c-.93.93.48 2.35 1.41 1.41l2.89-2.89c.72.52 1.57.88 2.48 1.03V22c0 1.32 2 1.32 2 0v-4.09a5.88 5.88 0 0 0 2.48-1.03l2.89 2.89c.93.93 2.35-.48 1.41-1.41l-2.89-2.89c.51-.72.87-1.56 1.02-2.47H22c1.32 0 1.32-2 0-2Zm-10 5a4 4 0 1 1 0-8 4 4 0 0 1 0 8Z" fill="%23FFFFFF"/></svg>');
+    display: none;
+}
+body.dark-mode .moon-icon { display: none; }
+body.dark-mode .sun-icon { display: block; }
+
+.stars {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: -1;
+}
+.star {
+    position: absolute;
+    background: #ffffff;
+    border-radius: 50%;
+    opacity: 0;
+    box-shadow: 0 0 8px rgba(255,255,255,0.8);
+}
+body.dark-mode .star { box-shadow: 0 0 10px rgba(255,255,255,1); }
+@keyframes drift {
+    0% { opacity: 0; transform: translate(0,0) scale(0.5); }
+    10% { opacity: 1; }
+    50% { opacity: 0.8; }
+    90% { opacity: 1; }
+    100% { opacity: 0; transform: translate(var(--dx),var(--dy)) scale(1.2); }
+}
+
+#picker {
+    background: inherit;
+    padding: 24px;
+    border-radius: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+}
+
+#picker h2 {
+    color: inherit;
+}
+
+#picker input {
+    background: inherit;
+    color: inherit;
+    width: 140px;
+    padding: 14px 18px;
+    border-radius: 999px;
+    border: 2px solid #cbd5e1;
+    font-size: 18px;
+    text-align: center;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+#picker input:focus {
+    border-color: #ffffff;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+#picker button {
+    background: inherit;
+    color: #4f46e5; 
+    padding: 12px 24px;
+    border-radius: 999px;
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transition: all 0.3s ease;
+}
+
+#picker button:hover {
+    filter: brightness(1.1);
+}
+
+#result {
+    font-size: 36px;  
+    font-weight: 700;         
+    margin-top: 15px;             
+    padding: 12px 24px;            
+    background: inherit;
+    color: #4f46e5;
+    border-radius: 999px;
+    min-width: 120px;     
+    text-align: center;       
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15); 
+    transition: all 0.3s ease;     
+}
+#errorToast {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50px);
+    background-color: #f87171;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 12px;
+    min-width: 220px;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 1000;
+    overflow: hidden;
+    transition: transform 0.5s cubic-bezier(.68,-0.55,.27,1.55), opacity 0.5s ease;
+}
+#errorToast.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+}
+#errorProgress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 4px;
+    background-color: #b91c1c;
+    width: 100%;
+    transition: width linear;
+}
+.footer-credit {
+    margin-top: 36px;
+    font-size: 13px;
+    color: #778da9;
+    opacity: 0.8;
+}
+.footer-credit a {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 1px dotted #778da9;
+    transition: color 0.3s ease;
+}
+.footer-credit a:hover { color: #0d6efd; border-bottom-color: #0d6efd; }
+body.dark-mode .footer-credit { color: #94a3b8; }
+body.dark-mode .footer-credit a { border-bottom-color: #94a3b8; }
+body.dark-mode .footer-credit a:hover { color: #0d6efd; border-bottom-color: #0d6efd; }
+@media (max-width: 480px) {
+  .picker-row {
+    flex-direction: column;
+    gap: 24px;
+    align-items: center;
+  }
+  #picker input {
+    width: 80%;
+    max-width: 300px;
+  }
+  #picker button {
+    width: 80%;
+    max-width: 300px;
+  }
+}
+</style>
+</head>
+<body>
+<div class="stars" id="stars"></div>
+<div class="wrapper">
+    <div class="navbar">
+        <a href="/" style="text-decoration:none;"><div class="badge">tinnytools.cc</div></a>
+    </div>
+    <div class="container">
+        <div class="theme-toggle" id="themeToggle">
+            <div class="icon moon-icon"></div>
+            <div class="icon sun-icon"></div>
+        </div>
+        <div id="errorToast">
+            <span id="errorMessage"></span>
+            <div id="errorProgress"></div>
+        </div>
+        <div id="picker">
+            <h2>Random Number Picker</h2>
+            <div class="picker-row">
+                <input type="number" id="min" placeholder="Min">
+                <input type="number" id="max" placeholder="Max">
+            </div>
+            <button onclick="pickRandom()">Pick Random</button>
+            <p id="result">N/A</p>
+        </div>
+        <div class="footer-credit">
+            Coded with ❤️ by <a href="https://cwl.sqidgeon.uk" target="_blank">sqidgeon</a> V1
+        </div>
+    </div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+    const starsContainer=document.getElementById('stars');
+    function createStar(){
+        const star=document.createElement('div');
+        star.classList.add('star');
+        const size=Math.random()*2.5+1;
+        star.style.width=`${size}px`;
+        star.style.height=`${size}px`;
+        star.style.left=`${Math.random()*100}vw`;
+        star.style.top=`${Math.random()*100}vh`;
+        const angle=Math.random()*Math.PI*2;
+        const distance=Math.random()*200+100;
+        star.style.setProperty('--dx',`${Math.cos(angle)*distance}px`);
+        star.style.setProperty('--dy',`${Math.sin(angle)*distance}px`);
+        const duration=Math.random()*13+12;
+        star.style.animation=`drift ${duration}s linear infinite`;
+        star.style.animationDelay=`${Math.random()*5}s`;
+        starsContainer.appendChild(star);
+        setTimeout(()=>star.remove(),duration*1000*3);
+    }
+    for(let i=0;i<70;i++)createStar();
+    setInterval(createStar,2000);
+    const themeToggle=document.getElementById('themeToggle');
+    themeToggle.addEventListener('click',()=>{document.body.classList.toggle('dark-mode');});
+});
+function pickRandom(){
+    let min=Number(document.getElementById("min").value);
+    let max=Number(document.getElementById("max").value);
+    let result=document.getElementById("result");
+    if(isNaN(min)||isNaN(max)){result.textContent="N/A";showError("Please enter both numbers",3000);return;}
+    if(min>max){result.textContent="N/A";showError("Min must be smaller than Max",3000);return;}
+    let random=Math.floor(Math.random()*(max-min+1))+min;
+    result.textContent=random;
+}
+function showError(message,duration=3000){
+    const toast=document.getElementById("errorToast");
+    const progress=document.getElementById("errorProgress");
+    const msg=document.getElementById("errorMessage");
+    msg.textContent=message;
+    toast.classList.add("show");
+    toast.style.pointerEvents="auto";
+    progress.style.transition="none";
+    progress.style.width="100%";
+    setTimeout(()=>{progress.style.transition=`width ${duration}ms linear`;progress.style.width="0%";},50);
+    setTimeout(()=>{toast.classList.remove("show");toast.style.pointerEvents="none";progress.style.transition="none";progress.style.width="100%";},duration);
+}
+</script>
+<script async="async" data-cfasync="false" src="https://resignedincidentallysurprise.com/9f655d2b4324382a98429e47037296d3/invoke.js"></script>
+<div id="container-9f655d2b4324382a98429e47037296d3"></div>
+<style>
+#container-9f655d2b4324382a98429e47037296d3 {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%) scale(0.8);
+  transform-origin: bottom center;
+  z-index: 9999;
+  background: transparent;
+  padding: 0;
+}
+#container-9f655d2b4324382a98429e47037296d3 > div { transform: none; }
+@media (max-width: 768px) {
+  #container-9f655d2b4324382a98429e47037296d3 { transform: translateX(-50%) scale(0.3); }
+}
+</style>
+</body>
+</html>
